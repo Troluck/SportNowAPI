@@ -5,6 +5,13 @@ const jwt = require("jsonwebtoken");
 class UserService {
   static async registerUser(email, password) {
     try {
+      const passwordRegex =
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\w\d\s:])([^\s]){8,}$/;
+      if (!passwordRegex.test(password)) {
+        throw new Error(
+          "Le mot de passe doit contenir au moins 8 caractères, dont au moins un chiffre, une majuscule, un caractère spécial"
+        );
+      }
       const createUser = new UserModel({ email, password });
       return await createUser.save();
     } catch (error) {
@@ -14,7 +21,9 @@ class UserService {
 
   static async checkuser(email) {
     try {
-      return await UserModel.findOne({ email });
+      const user = await UserModel.findOne({ email });
+
+      return user || null;
     } catch (error) {
       throw error;
     }
